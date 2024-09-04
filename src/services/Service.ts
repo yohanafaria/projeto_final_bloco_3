@@ -1,24 +1,46 @@
 import axios from "axios";
+import Produto from "../model/Produto";
+import Categoria from "../model/Categoria";
 
 const api = axios.create({
     baseURL: "https://farmacia-nest-t0o5.onrender.com"
-})
+});
 
-export const listar = async (url: string, setDados: Function) => {
-    const resposta = await api.get(url)
-    setDados(resposta.data)
+export const listar = async <T>(url: string): Promise<T> => {
+    try {
+        const resposta = await api.get<T>(url);
+        return resposta.data;
+    } catch (error) {
+        console.error("Erro ao listar:", error);
+        throw error;
+    }
 }
 
-export const cadastrar = async (url: string, dados: Object, setDados: Function) => {
-    const resposta = await api.post(url, dados)
-    setDados(resposta.data)
+export const cadastrar = async <T>(url: string, dados: Object): Promise<T> => {
+    try {
+        const resposta = await api.post<T>(url, dados);
+        return resposta.data;
+    } catch (error) {
+        console.error("Erro ao cadastrar:", error);
+        throw error;
+    }
 }
 
-export const atualizar = async (url: string, dados: Object, setDados: Function) => {
-    const resposta = await api.put(url, dados)
-    setDados(resposta.data)
+export const atualizar = async <T>(url: string, dados: Object): Promise<T> => {
+    try {
+        const resposta = await api.put<T>(url, dados);
+        return resposta.data;
+    } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        throw error;
+    }
 }
 
 export const deletar = async (url: string) => {
-    await api.delete(url)
+    try {
+        await api.delete(url);
+    } catch (error) {
+        console.error("Erro ao deletar:", error);
+        throw error;
+    }
 }

@@ -6,14 +6,18 @@ import { ToastAlerta } from '../../../utils/ToastAlerta';
 
 function FormCategoria() {
     const [categoria, setCategoria] = useState<Categoria>({} as Categoria);
-
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
         if (id !== undefined) {
             async function fetchCategoria() {
-                await listar(`/categorias/${id}`, setCategoria);
+                try {
+                    const categoriaData = await listar<Categoria>(`/categorias/${id}`);
+                    setCategoria(categoriaData);
+                } catch (error) {
+                    console.error("Erro ao carregar categoria", error);
+                }
             }
             fetchCategoria();
         }
@@ -26,19 +30,19 @@ function FormCategoria() {
         });
     }
 
-    async function gerarNovoTema(e: ChangeEvent<HTMLFormElement>) {
+    async function gerarNovaCategoria(e: ChangeEvent<HTMLFormElement>) {
         e.preventDefault();
 
         try {
             if (id !== undefined) {
-                await atualizar(`/categorias/${id}`, categoria, setCategoria);
+                await atualizar<Categoria>(`/categorias/${id}`, categoria);
                 ToastAlerta('Categoria atualizada com sucesso', 'sucesso');
             } else {
-                await cadastrar(`/categorias`, categoria, setCategoria);
+                await cadastrar<Categoria>(`/categorias`, categoria);
                 ToastAlerta('Categoria cadastrada com sucesso', 'sucesso');
             }
             retornar();
-        } catch (error: any) {
+        } catch (error) {
             ToastAlerta('Erro ao processar a Categoria', 'erro');
         }
     }
@@ -53,7 +57,7 @@ function FormCategoria() {
                 {id === undefined ? 'Cadastrar Nova Categoria' : 'Editar Categoria'}
             </h2>
             <div className='bg-white shadow-md rounded-lg border border-gray-200 p-6 w-full max-w-md'>
-                <form className="flex flex-col gap-4" onSubmit={gerarNovoTema}>
+                <form className="flex flex-col gap-4" onSubmit={gerarNovaCategoria}>
                     <label htmlFor="nome" className='text-lg font-semibold'>
                         Nome da Categoria
                     </label>
@@ -61,7 +65,7 @@ function FormCategoria() {
                         type="text"
                         placeholder="Nome"
                         name='nome'
-                        className="py-2 px-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:red transition duration-200"
+                        className="py-2 px-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
                         value={categoria.nome || ''}
                         onChange={atualizarEstado}
                     />

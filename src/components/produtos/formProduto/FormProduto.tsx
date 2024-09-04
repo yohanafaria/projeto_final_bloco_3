@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { atualizar, cadastrar, listar } from '../../../services/Service';
 import { ToastAlerta } from '../../../utils/ToastAlerta';
 import Produto from '../../../model/Produto';
-import Categoria from '../../../model/Categoria'; 
+import Categoria from '../../../model/Categoria';
 
 const API_URL_CATEGORIAS = "https://farmacia-nest-t0o5.onrender.com/categorias";
 
@@ -11,7 +11,7 @@ function FormProduto() {
     const [produto, setProduto] = useState<Produto>({} as Produto);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [categoriaId, setCategoriaId] = useState<number | ''>('');
-    const [categorias, setCategorias] = useState<Categoria[]>([]); 
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [loadingCategorias, setLoadingCategorias] = useState<boolean>(true);
 
     const navigate = useNavigate();
@@ -20,9 +20,8 @@ function FormProduto() {
     useEffect(() => {
         async function fetchCategorias() {
             try {
-                const response = await fetch(API_URL_CATEGORIAS);
-                const data = await response.json();
-                setCategorias(data);
+                const categoriasData = await listar<Categoria[]>(API_URL_CATEGORIAS);
+                setCategorias(categoriasData);
             } catch (error) {
                 console.error("Erro ao carregar categorias", error);
             } finally {
@@ -36,9 +35,13 @@ function FormProduto() {
     useEffect(() => {
         if (id !== undefined) {
             async function fetchProduto() {
-                const fetchedProduto = await listar(`/produtos/${id}`);
-                setProduto(fetchedProduto);
-                setCategoriaId(fetchedProduto.categoria?.id || ''); 
+                try {
+                    const fetchedProduto = await listar<Produto>(`/produtos/${id}`);
+                    setProduto(fetchedProduto);
+                    setCategoriaId(fetchedProduto.categoria?.id || ''); 
+                } catch (error) {
+                    console.error("Erro ao carregar produto", error);
+                }
             }
             fetchProduto();
         }
@@ -62,10 +65,10 @@ function FormProduto() {
 
         try {
             if (id !== undefined) {
-                await atualizar(`/produtos/${id}`, { ...produto, categoria: { id: categoriaId } });
+                await atualizar<Produto>(`/produtos/${id}`, { ...produto, categoria: { id: categoriaId } });
                 ToastAlerta('Produto atualizado com sucesso', 'sucesso');
             } else {
-                await cadastrar(`/produtos`, { ...produto, categoria: { id: categoriaId } });
+                await cadastrar<Produto>(`/produtos`, { ...produto, categoria: { id: categoriaId } });
                 ToastAlerta('Produto cadastrado com sucesso', 'sucesso');
             }
             retornar();
@@ -79,7 +82,7 @@ function FormProduto() {
         navigate("/produtos");
     }
 
-    if (loadingCategorias) return <p>Carregando categorias...</p>; // Mensagem de carregamento
+    if (loadingCategorias) return <p>Carregando categorias...</p>;
 
     return (
         <div className='flex flex-col justify-center items-center mt-4'>

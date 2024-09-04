@@ -7,15 +7,16 @@ import { Link } from "react-router-dom";
 function ListarCategoria() {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
-    async function buscarCategorias() {
-        try {
-            await listar('/categorias', setCategorias);
-        } catch (error: any) {
-            console.error(error);
-        }
-    }
-
     useEffect(() => {
+        async function buscarCategorias() {
+            try {
+                const categoriasData = await listar<Categoria[]>('/categorias');
+                setCategorias(categoriasData);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
         buscarCategorias();
     }, []);
 
