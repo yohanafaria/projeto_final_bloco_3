@@ -1,6 +1,4 @@
 import axios from "axios";
-import Produto from "../model/Produto";
-import Categoria from "../model/Categoria";
 
 const api = axios.create({
     baseURL: "https://farmacia-nest-t0o5.onrender.com"
